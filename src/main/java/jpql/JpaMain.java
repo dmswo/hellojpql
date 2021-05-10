@@ -17,8 +17,9 @@ public class JpaMain {
             em.persist(team);
 
             Member member = new Member();
-            member.setUsername("teamA");
+            member.setUsername(null);
             member.setAge(10);
+            member.setType(MemberType.ADMIN);
             member.setTeam(team);
 
             em.persist(member);
@@ -26,9 +27,14 @@ public class JpaMain {
             em.flush();
             em.clear();
 
-            String query = "select m from Member m left join Team t on m.username = t.name";
-            List<Member> result = em.createQuery(query, Member.class)
+            String query = "select coalesce(m.username, '이름 없는 회원') as username " +
+                    "from Member m";
+            List<String> result = em.createQuery(query, String.class)
                     .getResultList();
+
+            for (String s : result) {
+                System.out.println("s = " + s);
+            }
 
             tx.commit();
         } catch (Exception e){
